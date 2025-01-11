@@ -6,6 +6,8 @@ const session = require('express-session');
 require('./config/passport');
 const AuthService = require('./services/auth_service');
 const authMiddleware = require('./middleware/auth.middleware');
+const scoreRoutes = require('./routes/score.routes');
+
 
 const app = express();
 
@@ -19,7 +21,7 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-
+app.use('/api/scores', scoreRoutes);
 
 mongoose.connect('mongodb://localhost:27017/musemate')
   .then(() => console.log('Connected to MongoDB'))
