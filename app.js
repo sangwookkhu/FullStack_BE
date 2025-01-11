@@ -4,7 +4,7 @@ const cors = require('cors');
 const passport = require('passport');
 const session = require('express-session');
 require('./config/passport');
-const AuthService = require('./services/auth.service');
+const AuthService = require('./services/auth_service');
 const authMiddleware = require('./middleware/auth.middleware');
 
 const app = express();
@@ -20,14 +20,14 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// MongoDB connection
+
 mongoose.connect('mongodb://localhost:27017/musemate')
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
 const authService = new AuthService();
 
-// Auth Routes
+// auth_route
 app.get('/auth/google',
   passport.authenticate('google', { scope: ['profile', 'email'] })
 );
@@ -39,7 +39,6 @@ app.get('/auth/google/callback',
       const { accessToken, refreshToken } = authService.generateTokens(req.user);
       await authService.saveRefreshToken(req.user._id, refreshToken);
       
-      // 프론트엔드로 리다이렉트 (토큰을 쿼리 파라미터로 전달)
       res.redirect(`http://localhost:3000/auth/success?token=${accessToken}&refresh=${refreshToken}`);
     } catch (error) {
       res.redirect('/login');
@@ -47,7 +46,7 @@ app.get('/auth/google/callback',
   }
 );
 
-// 토큰 갱신
+// token 갱신
 app.post('/auth/refresh', async (req, res) => {
   try {
     const { refreshToken } = req.body;
